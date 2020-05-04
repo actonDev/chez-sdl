@@ -108,6 +108,7 @@
 (define sdl-gl-set-attribute!        SDL_GL_SetAttribute)
 (define sdl-gl-set-swap-interval!    SDL_GL_SetSwapInterval)
 (define sdl-gl-swap-window           SDL_GL_SwapWindow)
+(define sdl-get-window-id            SDL_GetWindowID)
 
 (define (sdl-create-window title x y w h . flags)
   (SDL_CreateWindow title x y w h (fold-left bitwise-ior 0 flags)))

@@ -66,6 +66,7 @@
 	  sdl-audio-stream-clear
 	  sdl-free-audio-stream
 
+	  sdl-get-window-id
 	  sdl-show-window
 	  sdl-create-window
 	  sdl-destroy-window
@@ -972,7 +973,17 @@
 	  KMOD-CTRL
 	  KMOD-SHIFT
 	  KMOD-ALT
-	  KMOD-GUI)
+	  KMOD-GUI
+	  ;; actondev mods
+	  ;; event types
+	  ;; SDL-WINDOW-EVENT-CLOSE
+	  ;; getting the event itself
+	  ;; sdl-event
+
+	  ;; getting the window id from a window
+	  ;; SDL_GetWindowID
+	  
+	  )
 
   (import (chezscheme)
 	  (sdl ftype))
