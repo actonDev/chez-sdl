@@ -756,8 +756,15 @@
 (define sdl-must-lock? SDL_MUSTLOCK)
 (define sdl-save-bmp SDL_SaveBMP)
 
-;; code from https://forums.libsdl.org/viewtopic.php?p=45496
 (define (sdl-save-renderer-bmp renderer file)
+  (let ((surface (sdl-create-rgb-surface-from-renderer renderer)))
+    (sdl-save-bmp surface file)
+    (sdl-free-surface surface)))
+
+;; renders the renderer's pixels and copies thme into a surface
+;; Note: remember to call sdl-free-surface later
+;; code from https://forums.libsdl.org/viewtopic.php?p=45496
+(define (sdl-create-rgb-surface-from-renderer renderer)
   (let* ((renderer-size (sdl-get-renderer-output-size renderer))
 	 (width (car renderer-size))
 	 (height (cadr renderer-size))
@@ -769,22 +776,17 @@
 	 (pitch (* 4 width)))
     ;; we ignore the output..
     (SDL_RenderReadPixels renderer rect-pointer format ;; by passing 0: we get the format of the target
-				     pixels pitch)
+			  pixels pitch)
     (let ((surface (SDL_CreateRGBSurfaceFrom pixels width height
-					     (list-ref masks 0)	;; bit depth (car masks)
+					     (list-ref masks 0)	;; bit depth
 					     pitch
 					     ;; masks: r, g, b, a
 					     (list-ref masks 1)
 					     (list-ref masks 2)
 					     (list-ref masks 3)
-					     (list-ref masks 4)
-					     )))
-      (sdl-save-bmp surface file)
-      ;; freeing up resources
-      (SDL_FreeSurface surface)
-      )
-    ;; freeing up resources
- (foreign-free pixels)))
+					     (list-ref masks 4))))
+      ;; note: cannot call foreign-free on the pixels, they are used internally from the surface
+      surface)))
 
 (define (sdl-set-clip! surface rect)
   (let* ((clip   (if (sdl-rect? rect)

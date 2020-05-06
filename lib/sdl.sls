@@ -145,6 +145,7 @@
 	  sdl-convert-surface
 	  sdl-convert-surface-format
 	  sdl-create-rgb-surface
+	  sdl-create-rgb-surface-from-renderer
 	  bytevector->sdl-surface
 	  sdl-create-rgb-surface-with-format
 	  sdl-fill-rect
