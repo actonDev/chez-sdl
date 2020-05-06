@@ -552,11 +552,11 @@
 	 (Amask  (make-ftype-pointer unsigned-32 (foreign-alloc (ftype-sizeof unsigned-32))))
 	 (result (SDL_PixelFormatEnumToMasks format bpp Rmask Gmask Bmask Amask))
 	 (return (if (= result SDL-TRUE)
-		     (list (ftype-ref unsigned-8 () bpp)
-			   (ftype-ref unsigned-8 () Rmask)
-			   (ftype-ref unsigned-8 () Gmask)
-			   (ftype-ref unsigned-8 () Bmask)
-			   (ftype-ref unsigned-8 () Amask))
+		     (list (ftype-ref int () bpp)
+			   (ftype-ref unsigned-32 () Rmask)
+			   (ftype-ref unsigned-32 () Gmask)
+			   (ftype-ref unsigned-32 () Bmask)
+			   (ftype-ref unsigned-32 () Amask))
 		     '())))
     (foreign-free (ftype-pointer-address bpp))
     (foreign-free (ftype-pointer-address Rmask))
@@ -755,6 +755,36 @@
 
 (define sdl-must-lock? SDL_MUSTLOCK)
 (define sdl-save-bmp SDL_SaveBMP)
+
+;; code from https://forums.libsdl.org/viewtopic.php?p=45496
+(define (sdl-save-renderer-bmp renderer file)
+  (let* ((renderer-size (sdl-get-renderer-output-size renderer))
+	 (width (car renderer-size))
+	 (height (cadr renderer-size))
+	 (rect (make-sdl-rect 0 0 width height))
+	 (rect-pointer (sdl-rect->ftype rect))
+	 (format SDL_PIXELFORMAT_ARGB8888 #;#x16362004 ) ;; todo Can I get this from renderer?
+	 (pixels (foreign-alloc (* 4 width height)))
+	 (masks (sdl-pixel-format->masks format))
+	 (pitch (* 4 width)))
+    ;; we ignore the output..
+    (SDL_RenderReadPixels renderer rect-pointer format ;; by passing 0: we get the format of the target
+				     pixels pitch)
+    (let ((surface (SDL_CreateRGBSurfaceFrom pixels width height
+					     (list-ref masks 0)	;; bit depth (car masks)
+					     pitch
+					     ;; masks: r, g, b, a
+					     (list-ref masks 1)
+					     (list-ref masks 2)
+					     (list-ref masks 3)
+					     (list-ref masks 4)
+					     )))
+      (sdl-save-bmp surface file)
+      ;; freeing up resources
+      (SDL_FreeSurface surface)
+      )
+    ;; freeing up resources
+ (foreign-free pixels)))
 
 (define (sdl-set-clip! surface rect)
   (let* ((clip   (if (sdl-rect? rect)

@@ -162,6 +162,7 @@
 	  sdl-lower-blit-scaled
 	  sdl-must-lock?
 	  sdl-save-bmp
+	  sdl-save-renderer-bmp
 	  sdl-set-clip!
 	  sdl-set-color-key!
 	  sdl-set-alpha-mod!
